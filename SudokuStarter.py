@@ -118,13 +118,47 @@ def solve(initial_board, forward_checking = False, MRV = False, Degree = False,
     or more of the heuristics and constraint propagation methods (determined by
     arguments). Returns the resulting board solution. """
     print "Your code will solve the initial_board here!"
+    empty = 0
+    for i in range(self.BoardSize):
+        for j in range(self.BoardSize):
+            if board[i][j] == 0:
+                empty+=1
+    if empty == 0:
+        return initial_board
+
+
     print "Remember to return the final board (the SudokuBoard object)."
     print "I'm simply returning initial_board for demonstration purposes."
     return initial_board
 
-# def checkEmpty(board, MRV, LCV):
-#     #this is pure random
-#     for i in range(self.BoardSize):
-#         for j in range(self.BoardSize):
 
-#     pass
+def checkEmpty(board, MRV, LCV):
+    #this is pure random
+    BoardArray = board.CurrentGameBoard
+    size = len(BoardArray)
+
+    for i in range(size):
+        for j in range(size):
+            if board[i][j] == 0:
+                return board[i][j]
+
+def is_valid(board, value, row, column):
+    BoardArray = board.CurrentGameBoard
+    size = len(BoardArray)
+    subsquare = int(math.sqrt(size))
+    SquareRow = row // subsquare
+    SquareCol = col // subsquare
+
+    for row_position in range(size):
+        if row_position != column:
+            if board[row, row_position] == value
+                return False
+    for column_position in range(size):
+        if column_position != row:
+            if board[column_position, column] == value
+                return False
+
+    for i in range(subsquare):
+        for j in range(subsquare):
+            if((BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j]== value):
+                return False
