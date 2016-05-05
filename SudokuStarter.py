@@ -6,9 +6,21 @@ class SudokuBoard:
     """This will be the sudoku board game object your player will manipulate."""
   
     def __init__(self, size, board):
-      """the constructor for the SudokuBoard"""
-      self.BoardSize = size #the size of the board
-      self.CurrentGameBoard= board #the current state of the game board
+        """the constructor for the SudokuBoard"""
+        self.BoardSize = size #the size of the board
+        self.CurrentGameBoard= board #the current state of the game board
+
+        constraints = []
+        for x in range(1, size+1):
+            constraints.append(x)
+
+        self.position_constraints = [[0 for x in range(size)] for y in range(size)]
+        for i in range(size):
+        # print i
+            for j in range(size):
+            # print j
+                self.position_constraints[i][j] = constraints
+        #print self.position_constraints
 
 
     def set_value(self, row, col, value):
@@ -141,6 +153,10 @@ def solve(initial_board, forward_checking = False, MRV = False, Degree = False,
     for v in constraints:
         temp_board = copy.deepcopy(initial_board)
         temp_board.set_value(empty_row, empty_column, v)
+
+        if forward_checking == True:
+            forward_checking_get_constraints(empty_row,empty_column,temp_board,LCV)
+            print 'it is forward forward checking'
         
         print temp_board.print_board() #print statement added   
         
@@ -156,14 +172,37 @@ def solve(initial_board, forward_checking = False, MRV = False, Degree = False,
     print 'last case where no solution was found and we finished backtracking!' #print statement added
     return False
 
-
-
     print "Remember to return the final board (the SudokuBoard object)."
     print "I'm simply returning initial_board for demonstration purposes."
     return initial_board
 
-def delc_for_others(empty_row, empty_column, v):
-    """  """
+def forward_checking_get_constraints(row, column, board, lcv):
+    BoardArray = board.CurrentGameBoard
+    size = len(BoardArray)
+    subsquare = int(math.sqrt(size))
+    SquareRow = row // subsquare
+    SquareCol = column // subsquare
+    
+    #delete numbers already in the same column
+    for i in range(size):
+        if (BoardArray[i][column] == BoardArray[row][column]) and BoardArray[i][column] in board.position_constraints[i][column]:
+                board.position_constraints[i][column].remove(BoardArray[row][column])
+                print BoardArray[row][column]
+
+    #delete numbers already in the same row
+    for j in range(size):
+        if (BoardArray[row][j] == BoardArray[row][column] and BoardArray[row][j]) in board.position_constraints[row][j]:
+                board.position_constraints[row][j].remove(BoardArray[row][column])
+                print BoardArray[row][column]
+
+    #delet numbers already in subsquare - reference is_complete
+    for i in range(subsquare):
+        for j in range(subsquare):
+            if (BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j] == BoardArray[row][column]) and BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j] in board.position_constraints[SquareRow*subsquare+i][SquareCol*subsquare+j]:
+                    board.position_constraints[SquareRow*subsquare+i][SquareCol*subsquare+j].remove(BoardArray[row][column])
+                    print BoardArray[row][column]
+    return board.position_constraints[row][column]
+
 
 def checkEmpty(board, MRV, LCV):
     BoardArray = board.CurrentGameBoard
