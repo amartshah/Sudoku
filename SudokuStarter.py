@@ -10,6 +10,7 @@ class SudokuBoard:
       self.BoardSize = size #the size of the board
       self.CurrentGameBoard= board #the current state of the game board
 
+
     def set_value(self, row, col, value):
         """This function will create a new sudoku board object with the input
         value placed on the GameBoard row and col are both zero-indexed"""
@@ -118,29 +119,42 @@ def solve(initial_board, forward_checking = False, MRV = False, Degree = False,
     """Takes an initial SudokuBoard and solves it using back tracking, and zero
     or more of the heuristics and constraint propagation methods (determined by
     arguments). Returns the resulting board solution. """
+    
     print "Your code will solve the initial_board here!"
     BoardArray = initial_board.CurrentGameBoard
     size = len(BoardArray)
     
     #solution is found, return
-    for is_complete(initial_board) == True:
+    if is_complete(initial_board) == True:
         return initial_board
     
     #gets next empty row, column postion
     empty_row, empty_column = checkEmpty(initial_board, MRV, LCV)
     #potential values based on current constraints
     constraints = get_constraints(empty_row, empty_column, initial_board, LCV)
+    
+    if constraints == None:
+        return False
 
     for v in constraints:
         temp_board = copy.deepcopy(initial_board)
-        BoardArray.set_value(v)
+        temp_board.set_value(empty_row, empty_column, v)
+        
+        solution = solve(temp_board, False, False, False, False)
+        if solution == False:
+            break
+        else:
+            return solution
+    return False
+
 
 
     print "Remember to return the final board (the SudokuBoard object)."
     print "I'm simply returning initial_board for demonstration purposes."
     return initial_board
 
-
+def delc_for_others(empty_row, empty_column, v):
+    """  """
 
 def checkEmpty(board, MRV, LCV):
     BoardArray = board.CurrentGameBoard
@@ -181,9 +195,6 @@ def get_constraints(row, column, board, lcv):
             if((BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j] != 0 and
                 in constraints)
                 constraints.remove(BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j])
-                return False
-
-        
     return constraints
 
 
