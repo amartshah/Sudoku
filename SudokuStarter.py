@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import struct, string, math
+from copy import *
 
 class SudokuBoard:
     """This will be the sudoku board game object your player will manipulate."""
@@ -118,13 +119,14 @@ def solve(initial_board, forward_checking = False, MRV = False, Degree = False,
     or more of the heuristics and constraint propagation methods (determined by
     arguments). Returns the resulting board solution. """
     print "Your code will solve the initial_board here!"
-    empty = 0
-    for i in range(self.BoardSize):
-        for j in range(self.BoardSize):
-            if board[i][j] == 0:
-                empty+=1
-    if empty == 0:
+    #solution is found, return
+    for is_complete(initial_board) == True:
         return initial_board
+    
+    #gets next empty row, column postion
+    empty_row, empty_column = checkEmpty(initial_board, MRV, LCV)
+
+    
 
 
     print "Remember to return the final board (the SudokuBoard object)."
@@ -133,14 +135,15 @@ def solve(initial_board, forward_checking = False, MRV = False, Degree = False,
 
 
 def checkEmpty(board, MRV, LCV):
-    #this is pure random
     BoardArray = board.CurrentGameBoard
     size = len(BoardArray)
 
-    for i in range(size):
-        for j in range(size):
-            if board[i][j] == 0:
-                return board[i][j]
+   #when MRV and LCV are false just find next empty position (row, column)
+    if LCV == False and MRV == False:
+        for i in range(size):
+            for j in range(size):
+                if board[i][j] == 0:
+                    return i, j
 
 def is_valid(board, value, row, column):
     BoardArray = board.CurrentGameBoard
@@ -149,15 +152,19 @@ def is_valid(board, value, row, column):
     SquareRow = row // subsquare
     SquareCol = col // subsquare
 
+    #check if in same row
     for row_position in range(size):
         if row_position != column:
             if board[row, row_position] == value
                 return False
+
+    #check if in same column
     for column_position in range(size):
         if column_position != row:
             if board[column_position, column] == value
                 return False
 
+    #check if in same subsquare
     for i in range(subsquare):
         for j in range(subsquare):
             if((BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j]== value):
