@@ -18,8 +18,7 @@ class SudokuBoard:
         #add the value to the appropriate position on the board
         self.CurrentGameBoard[row][col]=value
         #return a new board of the same size with the value added
-        return SudokuBoard(self.BoardSize, self.CurrentGameBoard)
-                                                                  
+        return SudokuBoard(self.BoardSize, self.CurrentGameBoard).print_board()
                                                                   
     def print_board(self):
         """Prints the current game board. Leaves unassigned spots blank."""
@@ -142,14 +141,17 @@ def solve(initial_board, forward_checking = False, MRV = False, Degree = False,
     for v in constraints:
         temp_board = copy.deepcopy(initial_board)
         temp_board.set_value(empty_row, empty_column, v)
+        
         print temp_board.print_board() #print statement added   
+        
         solution = solve(temp_board, False, False, False, False)
         if solution == False:
-            break
+            continue
         else:
             print 'moving back up the recursion stack' #print statement added
             print solution.print_board() #print statement added
             return solution
+    
     print initial_board.print_board() #print statement added
     print 'last case where no solution was found and we finished backtracking!' #print statement added
     return False
@@ -188,18 +190,18 @@ def get_constraints(row, column, board, lcv):
 
     #delete numbers already in the same column
     for i in range(size):
-        if BoardArray[i][column] != 0 and (BoardArray[i][column] in constraints):
+        if (BoardArray[i][column] in constraints):
             constraints.remove(BoardArray[i][column])
 
     #delete numbers already in the same row
     for j in range(size):
-        if BoardArray[row][j] != 0 and (BoardArray[row][j] in constraints):
+        if (BoardArray[row][j] in constraints):
             constraints.remove(BoardArray[row][j])
 
     #delet numbers already in subsquare - reference is_complete
     for i in range(subsquare):
         for j in range(subsquare):
-            if BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j] != 0 and (BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j] in constraints):
+            if (BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j] in constraints):
                 constraints.remove(BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j])
     return constraints
 
