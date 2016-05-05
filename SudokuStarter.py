@@ -119,19 +119,27 @@ def solve(initial_board, forward_checking = False, MRV = False, Degree = False,
     or more of the heuristics and constraint propagation methods (determined by
     arguments). Returns the resulting board solution. """
     print "Your code will solve the initial_board here!"
+    BoardArray = initial_board.CurrentGameBoard
+    size = len(BoardArray)
+    
     #solution is found, return
     for is_complete(initial_board) == True:
         return initial_board
     
     #gets next empty row, column postion
     empty_row, empty_column = checkEmpty(initial_board, MRV, LCV)
+    #potential values based on current constraints
+    constraints = get_constraints(empty_row, empty_column, initial_board, LCV)
 
-    
+    for v in constraints:
+        temp_board = copy.deepcopy(initial_board)
+        BoardArray.set_value(v)
 
 
     print "Remember to return the final board (the SudokuBoard object)."
     print "I'm simply returning initial_board for demonstration purposes."
     return initial_board
+
 
 
 def checkEmpty(board, MRV, LCV):
@@ -142,30 +150,52 @@ def checkEmpty(board, MRV, LCV):
     if LCV == False and MRV == False:
         for i in range(size):
             for j in range(size):
-                if board[i][j] == 0:
+                if BoardArray[i][j] == 0:
                     return i, j
-
-def is_valid(board, value, row, column):
+               
+def get_constraints(row, column, board, lcv):
     BoardArray = board.CurrentGameBoard
     size = len(BoardArray)
     subsquare = int(math.sqrt(size))
     SquareRow = row // subsquare
     SquareCol = col // subsquare
+    
+    constraints = []
+    for x in range(1, size+1)
+        constraints.append(i)
 
-    #check if in same row
-    for row_position in range(size):
-        if row_position != column:
-            if board[row, row_position] == value
-                return False
 
-    #check if in same column
-    for column_position in range(size):
-        if column_position != row:
-            if board[column_position, column] == value
-                return False
+    #delete numbers already in the same column
+    for i in range(size):
+        if BoardArray[i, column] != 0 and in constraints:
+            constraints.remove(BoardArray[i, column])
 
-    #check if in same subsquare
+    #delete numbers already in the same row
+    for j in range(size):
+        if BoardArray[row, j] != 0 and in constraints:
+            constraints.remove(BoardArray[row, j])
+
+    #delet numbers already in subsquare - reference is_complete
     for i in range(subsquare):
         for j in range(subsquare):
-            if((BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j]== value):
+            if((BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j] != 0 and
+                in constraints)
+                constraints.remove(BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j])
                 return False
+
+        
+    return constraints
+
+
+
+
+               
+               
+               
+               
+               
+               
+               
+               
+               
+               
