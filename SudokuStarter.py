@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import struct, string, math
 from copy import *
-
+import copy
 class SudokuBoard:
     """This will be the sudoku board game object your player will manipulate."""
   
@@ -126,6 +126,7 @@ def solve(initial_board, forward_checking = False, MRV = False, Degree = False,
     
     #solution is found, return
     if is_complete(initial_board) == True:
+        print 'done, the board should be all finished!' #print statement added
         return initial_board
     
     #gets next empty row, column postion
@@ -133,18 +134,24 @@ def solve(initial_board, forward_checking = False, MRV = False, Degree = False,
     #potential values based on current constraints
     constraints = get_constraints(empty_row, empty_column, initial_board, LCV)
     
-    if constraints == None:
+    if len(constraints) <= 0:
+        print 'infeasible solution!' #print statement added
+        #the problem for the 9x9 is that our backtracking reaches this point bc apparently there are no feasible lcoations left
         return False
 
     for v in constraints:
         temp_board = copy.deepcopy(initial_board)
         temp_board.set_value(empty_row, empty_column, v)
-        
+        print temp_board.print_board() #print statement added   
         solution = solve(temp_board, False, False, False, False)
         if solution == False:
             break
         else:
+            print 'moving back up the recursion stack' #print statement added
+            print solution.print_board() #print statement added
             return solution
+    print initial_board.print_board() #print statement added
+    print 'last case where no solution was found and we finished backtracking!' #print statement added
     return False
 
 
@@ -172,28 +179,27 @@ def get_constraints(row, column, board, lcv):
     size = len(BoardArray)
     subsquare = int(math.sqrt(size))
     SquareRow = row // subsquare
-    SquareCol = col // subsquare
+    SquareCol = column // subsquare
     
     constraints = []
-    for x in range(1, size+1)
-        constraints.append(i)
+    for x in range(1, size+1):
+        constraints.append(x)
 
 
     #delete numbers already in the same column
     for i in range(size):
-        if BoardArray[i, column] != 0 and in constraints:
-            constraints.remove(BoardArray[i, column])
+        if BoardArray[i][column] != 0 and (BoardArray[i][column] in constraints):
+            constraints.remove(BoardArray[i][column])
 
     #delete numbers already in the same row
     for j in range(size):
-        if BoardArray[row, j] != 0 and in constraints:
-            constraints.remove(BoardArray[row, j])
+        if BoardArray[row][j] != 0 and (BoardArray[row][j] in constraints):
+            constraints.remove(BoardArray[row][j])
 
     #delet numbers already in subsquare - reference is_complete
     for i in range(subsquare):
         for j in range(subsquare):
-            if((BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j] != 0 and
-                in constraints)
+            if BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j] != 0 and (BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j] in constraints):
                 constraints.remove(BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j])
     return constraints
 
