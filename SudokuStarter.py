@@ -244,11 +244,82 @@ def get_constraints(row, column, board, lcv):
                 constraints.remove(BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j])
     return constraints
 
+#this one sorts a list
+def get_LCV(row, column, board, l):
+    if len(l) == 0:
+        return
+    index_list = []
+    result = []
+    BoardArray = board.CurrentGameBoard
+    size = len(BoardArray)
+    subsquare = int(math.sqrt(size))
+    SquareRow = row // subsquare
+    SquareCol = column // subsquare
+
+    for i in range(len(l)):
+        index_list.append(0)
+    for i in range(size):
+        if (BoardArray[row][i] == 0):
+            c = list(set(l) - (set(l) - set(get_constraints(row,i,board, False)))) 
+    for x in c:
+        index_list[l.index(x)] += 1
+    if (BoardArray[i][col] == 0):
+        c = list(set(l) - (set(l) - set(get_constraints(i, col, board, False)))) 
+    for x in c:
+        index_list[l.index(x)] += 1
 
 
+    for i in range(subsquare):
+        for j in range(subsquare):
+            if(BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j] == 0):
+                c = list(set(l) - (set(l) - set(get_constraints(SquareRow*subsquare+i, SquareCol*subsquare+j, board, False))))
+        for x in c:
+          index_list[l.index(x)] += 1
 
-               
-               
+    sort_list = copy.deepcopy(index_list)
+    sort_list.sort()
+    for i in range(len(sort_list)):
+        temp = l[index_list.index(sort_list[i])]
+        result.append(temp)
+
+    l = result
+
+#look at the doc string
+def find_LCV(row, column, board):
+    """
+    returns the coordinates of the blank square in the grid that is
+    involved in the fewest number of constraints with unassigned variables
+    """
+    BoardArray = board.CurrentGameBoard
+    size = len(BoardArray)
+    subsquare = int(math.sqrt(size))
+    SquareRow = row // subsquare
+    SquareCol = column // subsquare
+    coords = [row, column]
+    low_constraints = size*size  # the max number of constraints, default to first open square
+
+    for row in range(size):
+        for col in range(size):
+            if BoardArray[row][col] == 0:
+                constraints = 0
+                for i in range(size):  # first check row + column constraints
+                    if BoardArray[row][i] == 0: constraints += 1
+                    if BoardArray[i][col] == 0: constraints += 1
+                for i in range(subsquare):  # lastly check subsquare constraints
+                    for j in range(subsquare):
+                        if ((BoardArray[SquareRow * subsquare + i][SquareCol * subsquare + j]
+                                 == 0)
+                            and (SquareRow * subsquare + i != row)
+                            and (SquareCol * subsquare + j != col)): constraints += 1
+
+                if constraints < low_constraints:
+                    low_constraints = constraints
+                    coords = [row, col]
+
+    if low_constraints == size*size: return False
+
+    return coords
+
                
                
                
