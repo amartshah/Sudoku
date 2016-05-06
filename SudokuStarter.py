@@ -20,6 +20,7 @@ class SudokuBoard:
             for j in range(size):
             # print j
                 self.position_constraints[i][j] = constraints
+                # get_constraints(i,j,self,False)
         #print self.position_constraints
 
 
@@ -160,7 +161,7 @@ def solve(initial_board, forward_checking = False, MRV = False, Degree = False,
         
         print temp_board.print_board() #print statement added   
         
-        solution = solve(temp_board, False, False, False, False)
+        solution = solve(temp_board, forward_checking, MRV, Degree, LCV)
         if solution == False:
             continue
         else:
@@ -172,9 +173,6 @@ def solve(initial_board, forward_checking = False, MRV = False, Degree = False,
     print 'last case where no solution was found and we finished backtracking!' #print statement added
     return False
 
-    print "Remember to return the final board (the SudokuBoard object)."
-    print "I'm simply returning initial_board for demonstration purposes."
-    return initial_board
 
 def forward_checking_get_constraints(row, column, board, lcv):
     BoardArray = board.CurrentGameBoard
@@ -207,13 +205,23 @@ def forward_checking_get_constraints(row, column, board, lcv):
 def checkEmpty(board, MRV, LCV):
     BoardArray = board.CurrentGameBoard
     size = len(BoardArray)
-
    #when MRV and LCV are false just find next empty position (row, column)
+    print "WEEEEEEEEEE ITERATINGGGGG"
+    print "the value of MRV issssss" + str(MRV)
     if LCV == False and MRV == False:
         for i in range(size):
             for j in range(size):
                 if BoardArray[i][j] == 0:
                     return i, j
+        print "hello2"
+
+    if MRV == True:
+
+        row, column = get_MRV(board)
+
+        print row, column
+        print "hello"
+        return row, column
                
 def get_constraints(row, column, board, lcv):
     BoardArray = board.CurrentGameBoard
@@ -243,6 +251,24 @@ def get_constraints(row, column, board, lcv):
             if (BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j] in constraints):
                 constraints.remove(BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j])
     return constraints
+
+def get_MRV(board):
+    BoardArray = board.CurrentGameBoard
+    size = len(BoardArray)
+    more = len(board.position_constraints[0][0])
+    print "the startoff value for the most remaining values in constraints is " + str(more)
+    row = 0
+    column = 0
+
+    for i in range(size):
+        for j in range(size):
+            print "the number of constraints in this position is " + str(len(board.position_constraints[i][j]))
+            print "compared to the more variable which has " + str(more) + " number of remaining values"
+            if more > len(board.position_constraints[i][j]):
+                more = len(board.position_constraints[i][j])
+                row = i
+                column = j
+    return row, column
 
 #this one sorts a list
 def get_LCV(row, column, board, l):
