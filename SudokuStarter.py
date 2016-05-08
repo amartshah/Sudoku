@@ -152,11 +152,14 @@ def solve(initial_board, forward_checking = False, MRV = False, Degree = False,
         #the problem for the 9x9 is that our backtracking reaches this point bc apparently there are no feasible lcoations left
         return False
     if LCV == True:
+
         value = get_LCV(empty_row,empty_column,initial_board)
+        if value == 0:
+            return False
         temp_board = copy.deepcopy(initial_board)
-        temp_board.set_value(empty_row, empty_column, value)        
-        solution = solve(temp_board, forward_checking, MRV, Degree, LCV)
+        temp_board.set_value(empty_row, empty_column, value)
         print "using lcv"
+        solution = solve(temp_board, forward_checking, MRV, Degree, LCV)
         print temp_board.print_board()
         if solution != False:
             print solution.print_board()
@@ -306,25 +309,26 @@ def get_degree(board):
             SquareRow = row // subsquare
             SquareCol = column // subsquare
             empty = 0
-            #count empty positions in that column 
-            for i in range(size): #each position in column
-                if (BoardArray[i][column] == 0):
-                    empty+=1
-
-            #count empty positions in that row
-            for j in range(size):
-                if (BoardArray[row][j] == 0):
-                    empty+=1
-
-            #delet numbers already in subsquare - reference is_complete
-            for i in range(subsquare):
-                for j in range(subsquare):
-                    if (BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j] ==0):
+            if BoardArray[row][column] == 0:
+                #count empty positions in that column 
+                for i in range(size): #each position in column
+                    if (BoardArray[i][column] == 0):
                         empty+=1
-            if most_empty  < empty:
-                best_row = row
-                best_column = column
-                most_empty = empty
+
+                #count empty positions in that row
+                for j in range(size):
+                    if (BoardArray[row][j] == 0):
+                        empty+=1
+
+                #delet numbers already in subsquare - reference is_complete
+                for i in range(subsquare):
+                    for j in range(subsquare):
+                        if (BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j] ==0):
+                            empty+=1
+                if most_empty  < empty:
+                    best_row = row
+                    best_column = column
+                    most_empty = empty
     return best_row,best_column
 
 def get_LCV(row, column, board):
@@ -334,26 +338,24 @@ def get_LCV(row, column, board):
     SquareRow = row // subsquare
     SquareCol = column // subsquare
     
-    least_constrained = 0
-    best_value = None
+    least_constrained = float('inf')
+    best_value = 0
 
     #if that position is already set then empty constraint array
     if(BoardArray[row][column] == 0):
         for x in range(1, size+1):
             constrained = 0
-            #count empty positions in that column 
+
             for i in range(size): #each position in column
                 if (BoardArray[i][column] == 0):
                     if (x in board.position_constraints[i][column]):
                         constrained+=1
 
-            #count empty positions in that row
             for j in range(size):
                 if (BoardArray[row][j] == 0):
                     if (x in board.position_constraints[row][j]):
                         constrained+=1
 
-            #delet numbers already in subsquare - reference is_complete
             for i in range(subsquare):
                 for j in range(subsquare):
                     if (BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j] ==0):
