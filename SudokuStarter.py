@@ -323,7 +323,7 @@ def get_degree(board):
                 #delet numbers already in subsquare - reference is_complete
                 for i in range(subsquare):
                     for j in range(subsquare):
-                        if (BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j] ==0):
+                        if (BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j] ==0 and SquareRow*subsquare+i != row and SquareCol*subsquare+j != column):
                             empty+=1
                 if most_empty  < empty:
                     best_row = row
