@@ -158,6 +158,11 @@ def solve(initial_board, forward_checking = False, MRV = False, Degree = False,
             return False
         temp_board = copy.deepcopy(initial_board)
         temp_board.set_value(empty_row, empty_column, value)
+        
+        if forward_checking == True:
+            forward_checking_get_constraints(empty_row,empty_column,temp_board,LCV)
+            print 'it is forward forward checking'
+        
         print "using lcv"
         solution = solve(temp_board, forward_checking, MRV, Degree, LCV)
         print temp_board.print_board()
@@ -222,11 +227,14 @@ def checkEmpty(board, MRV, degree):
     size = len(BoardArray)
    #when MRV and LCV are false just find next empty position (row, column)
     print "WEEEEEEEEEE ITERATINGGGGG"
-    print "the value of MRV issssss" + str(MRV)
+    print "the value of MRV issssss " + str(MRV)
+    print "the value of Degree issssss " + str(degree)
+
     if degree == False and MRV == False:
         for i in range(size):
             for j in range(size):
                 if BoardArray[i][j] == 0:
+                    print i,j
                     return i, j
         print "hello2"
 
@@ -340,10 +348,10 @@ def get_LCV(row, column, board):
     
     least_constrained = float('inf')
     best_value = 0
-
+    
     #if that position is already set then empty constraint array
     if(BoardArray[row][column] == 0):
-        for x in range(1, size+1):
+        for x in board.position_constraints[row][column]:
             constrained = 0
 
             for i in range(size): #each position in column
@@ -359,55 +367,17 @@ def get_LCV(row, column, board):
             for i in range(subsquare):
                 for j in range(subsquare):
                     if (BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j] ==0):
-                        if (x in board.position_constraints[SquareRow*subsquare+i][SquareCol*subsquare+j]):
+                        if (x in board.position_constraints[SquareRow*subsquare+i][SquareCol*subsquare+j] and SquareRow*subsquare+i != i and SquareCol*subsquare+j != j ):
                             constrained+=1
             if least_constrained  > constrained:
                 least_constrained = constrained
                 best_value = x
+    print hello
     return best_value
 
-# #this one sorts a list
-# def get_LCV(row, column, board, l):
-#     if len(l) == 0:
-#         return
-#     index_list = []
-#     result = []
-#     BoardArray = board.CurrentGameBoard
-#     size = len(BoardArray)
-#     subsquare = int(math.sqrt(size))
-#     SquareRow = row // subsquare
-#     SquareCol = column // subsquare
-
-#     for i in range(len(l)):
-#         index_list.append(0)
-#     for i in range(size):
-#         if (BoardArray[row][i] == 0):
-#             c = list(set(l) - (set(l) - set(get_constraints(row,i,board, False)))) 
-#     for x in c:
-#         index_list[l.index(x)] += 1
-#     if (BoardArray[i][col] == 0):
-#         c = list(set(l) - (set(l) - set(get_constraints(i, col, board, False)))) 
-#     for x in c:
-#         index_list[l.index(x)] += 1
-
-
-#     for i in range(subsquare):
-#         for j in range(subsquare):
-#             if(BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j] == 0):
-#                 c = list(set(l) - (set(l) - set(get_constraints(SquareRow*subsquare+i, SquareCol*subsquare+j, board, False))))
-#         for x in c:
-#           index_list[l.index(x)] += 1
-
-#     sort_list = copy.deepcopy(index_list)
-#     sort_list.sort()
-#     for i in range(len(sort_list)):
-#         temp = l[index_list.index(sort_list[i])]
-#         result.append(temp)
-
-#     l = result
 
 # #look at the doc string
-# def find_LCV(row, column, board):
+#def find_LCV(row, column, board):
 #     """
 #     returns the coordinates of the blank square in the grid that is
 #     involved in the fewest number of constraints with unassigned variables
@@ -417,9 +387,9 @@ def get_LCV(row, column, board):
 #     subsquare = int(math.sqrt(size))
 #     SquareRow = row // subsquare
 #     SquareCol = column // subsquare
-#     coords = [row, column]
+#     coords = 0
 #     low_constraints = size*size  # the max number of constraints, default to first open square
-
+#
 #     for row in range(size):
 #         for col in range(size):
 #             if BoardArray[row][col] == 0:
@@ -433,13 +403,13 @@ def get_LCV(row, column, board):
 #                                  == 0)
 #                             and (SquareRow * subsquare + i != row)
 #                             and (SquareCol * subsquare + j != col)): constraints += 1
-
+#
 #                 if constraints < low_constraints:
 #                     low_constraints = constraints
-#                     coords = [row, col]
-
-#     if low_constraints == size*size: return False
-
+#                     coords = BoardArray[row][column]
+#     print board
+##if low_constraints == size*size: return False
+#
 #     return coords
 
                
