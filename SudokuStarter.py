@@ -31,6 +31,7 @@ class SudokuBoard:
         self.CurrentGameBoard[row][col]=value
         #return a new board of the same size with the value added
         self.position_constraints[row][col] = []
+        print str(len(self.position_constraints)) + " that was the lenght of the position constraint array for the value just set = should be zerp"
         return SudokuBoard(self.BoardSize, self.CurrentGameBoard).print_board()
                                                                   
     def print_board(self):
@@ -142,32 +143,43 @@ def solve(initial_board, forward_checking = False, MRV = False, Degree = False,
         return initial_board
     
     #gets next empty row, column postion
-    empty_row, empty_column = checkEmpty(initial_board, MRV, LCV)
+    empty_row, empty_column = checkEmpty(initial_board, MRV, Degree)
     #potential values based on current constraints
     constraints = get_constraints(empty_row, empty_column, initial_board, LCV)
-    
-    if len(constraints) <= 0:
+
+    if len(constraints) == 0:
         print 'infeasible solution!' #print statement added
         #the problem for the 9x9 is that our backtracking reaches this point bc apparently there are no feasible lcoations left
         return False
-
-    for v in constraints:
+    if LCV == True:
+        value = get_LCV(empty_row,empty_column,initial_board)
         temp_board = copy.deepcopy(initial_board)
-        temp_board.set_value(empty_row, empty_column, v)
-
-        if forward_checking == True:
-            forward_checking_get_constraints(empty_row,empty_column,temp_board,LCV)
-            print 'it is forward forward checking'
-        
-        print temp_board.print_board() #print statement added   
-        
+        temp_board.set_value(empty_row, empty_column, value)        
         solution = solve(temp_board, forward_checking, MRV, Degree, LCV)
-        if solution == False:
-            continue
-        else:
-            print 'moving back up the recursion stack' #print statement added
-            print solution.print_board() #print statement added
+        print "using lcv"
+        print temp_board.print_board()
+        if solution != False:
+            print solution.print_board()
             return solution
+        
+    else:
+        for v in constraints:
+            temp_board = copy.deepcopy(initial_board)
+            temp_board.set_value(empty_row, empty_column, v)
+
+            if forward_checking == True:
+                forward_checking_get_constraints(empty_row,empty_column,temp_board,LCV)
+                print 'it is forward forward checking'
+            
+            print temp_board.print_board() #print statement added   
+            
+            solution = solve(temp_board, forward_checking, MRV, Degree, LCV)
+            if solution == False:
+                continue
+            else:
+                print 'moving back up the recursion stack' #print statement added
+                print solution.print_board() #print statement added
+                return solution
     
     print initial_board.print_board() #print statement added
     print 'last case where no solution was found and we finished backtracking!' #print statement added
@@ -202,13 +214,13 @@ def forward_checking_get_constraints(row, column, board, lcv):
     return board.position_constraints[row][column]
 
 
-def checkEmpty(board, MRV, LCV):
+def checkEmpty(board, MRV, degree):
     BoardArray = board.CurrentGameBoard
     size = len(BoardArray)
    #when MRV and LCV are false just find next empty position (row, column)
     print "WEEEEEEEEEE ITERATINGGGGG"
     print "the value of MRV issssss" + str(MRV)
-    if LCV == False and MRV == False:
+    if degree == False and MRV == False:
         for i in range(size):
             for j in range(size):
                 if BoardArray[i][j] == 0:
@@ -216,13 +228,14 @@ def checkEmpty(board, MRV, LCV):
         print "hello2"
 
     if MRV == True:
-
         row, column = get_MRV(board)
-
         print row, column
-        print "hello"
+        print "hello MRV"
         return row, column
-               
+
+    if degree ==True:
+        return get_degree(board)
+
 def get_constraints(row, column, board, lcv):
     BoardArray = board.CurrentGameBoard
     size = len(BoardArray)
@@ -266,20 +279,90 @@ def get_MRV(board):
         for j in range(size):
             print "the number of constraints in this position is " + str(len(board.position_constraints[i][j]))
             print "compared to the least variable which has " + str(least) + " number of remaining values"
-            if len(board.position_constraints[i][j]) != 0:
-                # if(BoardArray[i][j] == )
+            # if len(board.position_constraints[i][j]) != 0: #if that position is already set then empty constraint array
+
+            if(BoardArray[i][j] == 0):
+                print "#######the number of constraints in this position is " + str(len(board.position_constraints[i][j]))
+                print "#######compared to the least variable which has " + str(least) + " number of remaining values"
                 if least > len(board.position_constraints[i][j]):
                     least = len(board.position_constraints[i][j])
+                    print "as shown by the above two lines, the least variable is larger then the #of constratins at that position so we are setting that pos cons to the least var"
                     row = i
                     column = j
     print "i returned row and column pair: " + str(row) + ", " + str(column)
     return row, column
 
 def get_degree(board):
-    pass
+    BoardArray = board.CurrentGameBoard
+    size = len(BoardArray)
+    subsquare = int(math.sqrt(size))
+ 
+    
+    most_empty = 0
+    best_row = 0
+    best_column = 0
+    for row in range(size): #for each row
+        for column in range(size): #in each column
+            SquareRow = row // subsquare
+            SquareCol = column // subsquare
+            empty = 0
+            #count empty positions in that column 
+            for i in range(size): #each position in column
+                if (BoardArray[i][column] == 0):
+                    empty+=1
 
-def get_LCV(board):
-    pass
+            #count empty positions in that row
+            for j in range(size):
+                if (BoardArray[row][j] == 0):
+                    empty+=1
+
+            #delet numbers already in subsquare - reference is_complete
+            for i in range(subsquare):
+                for j in range(subsquare):
+                    if (BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j] ==0):
+                        empty+=1
+            if most_empty  < empty:
+                best_row = row
+                best_column = column
+                most_empty = empty
+    return best_row,best_column
+
+def get_LCV(row, column, board):
+    BoardArray = board.CurrentGameBoard
+    size = len(BoardArray)
+    subsquare = int(math.sqrt(size))
+    SquareRow = row // subsquare
+    SquareCol = column // subsquare
+    
+    least_constrained = 0
+    best_value = None
+
+    #if that position is already set then empty constraint array
+    if(BoardArray[row][column] == 0):
+        for x in range(1, size+1):
+            constrained = 0
+            #count empty positions in that column 
+            for i in range(size): #each position in column
+                if (BoardArray[i][column] == 0):
+                    if (x in board.position_constraints[i][column]):
+                        constrained+=1
+
+            #count empty positions in that row
+            for j in range(size):
+                if (BoardArray[row][j] == 0):
+                    if (x in board.position_constraints[row][j]):
+                        constrained+=1
+
+            #delet numbers already in subsquare - reference is_complete
+            for i in range(subsquare):
+                for j in range(subsquare):
+                    if (BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j] ==0):
+                        if (x in board.position_constraints[SquareRow*subsquare+i][SquareCol*subsquare+j]):
+                            constrained+=1
+            if least_constrained  > constrained:
+                least_constrained = constrained
+                best_value = x
+    return best_value
 
 # #this one sorts a list
 # def get_LCV(row, column, board, l):
