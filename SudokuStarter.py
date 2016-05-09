@@ -189,6 +189,8 @@ def solve(initial_board, forward_checking = False, MRV = False, Degree = False,
             counter += 1
 
             if forward_checking == True:
+                print "called once"
+
                 if forward_checking_get_constraints(empty_row,empty_column,temp_board,LCV) == False:
                     continue
                 print 'it is forward forward checking'
@@ -221,8 +223,7 @@ def forward_checking_get_constraints(row, column, board, lcv):
     flag = True
     
     while flag == True:
-        flag == False
-    
+        flag = False
         for i in range(size):
             for j in range(size):
                 if len(board.position_constraints[i][j])  == 1 and BoardArray[i][j] == 0:
@@ -232,14 +233,17 @@ def forward_checking_get_constraints(row, column, board, lcv):
                     flag = True
                     update(i, j, board)
                     print "update"
+                elif len(board.position_constraints[i][j])  == 0 and BoardArray[i][j] == 0:
+                    return False
                 if is_complete(board) == True:
                     print 'special done, the board should be all finished!' #print statement added
                     return True
-                if len(board.position_constraints[i][j])  == 0 and BoardArray[i][j] == 0:
-                    return False
     return True
 
 def update(row, column, board):
+    if is_complete(board) == True:
+        print 'special done, the board should be all finished!' #print statement added
+        return True
 
     BoardArray = board.CurrentGameBoard
     size = len(BoardArray)
@@ -261,6 +265,7 @@ def update(row, column, board):
             for j in range(subsquare):
                 if BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j] == 0 and BoardArray[row][column] in board.position_constraints[SquareRow*subsquare+i][SquareCol*subsquare+j]:
                     board.position_constraints[SquareRow*subsquare+i][SquareCol*subsquare+j].remove(BoardArray[row][column])
+    return
 
 def checkEmpty(board, MRV, degree):
     BoardArray = board.CurrentGameBoard
