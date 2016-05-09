@@ -166,7 +166,9 @@ def solve(initial_board, forward_checking = False, MRV = False, Degree = False,
             counter += 1
             
             if forward_checking == True:
-                forward_checking_get_constraints(empty_row,empty_column,temp_board,LCV)
+                if forward_checking_get_constraints(empty_row,empty_column,temp_board,LCV) == False:
+                    continue
+
                 print 'it is forward forward checking'
             
             print temp_board.print_board() #print statement added
@@ -187,7 +189,8 @@ def solve(initial_board, forward_checking = False, MRV = False, Degree = False,
             counter += 1
 
             if forward_checking == True:
-                forward_checking_get_constraints(empty_row,empty_column,temp_board,LCV)
+                if forward_checking_get_constraints(empty_row,empty_column,temp_board,LCV) == False:
+                    continue
                 print 'it is forward forward checking'
             
             print temp_board.print_board() #print statement added   
@@ -212,27 +215,41 @@ def forward_checking_get_constraints(row, column, board, lcv):
     subsquare = int(math.sqrt(size))
     SquareRow = row // subsquare
     SquareCol = column // subsquare
-    
     #delete numbers already in the same column
     for i in range(size):
-        if (BoardArray[i][column] == BoardArray[row][column]) and BoardArray[i][column] in board.position_constraints[i][column]:
-                board.position_constraints[i][column].remove(BoardArray[row][column])
-                print BoardArray[row][column]
+        if BoardArray[i][column] == 0 and BoardArray[row][column] in board.position_constraints[i][column]:
+            board.position_constraints[i][column].remove(BoardArray[row][column])
+            if len(board.position_constraints[i][column]) == 0:
+                return False            
+            if len(board.position_constraints[i][column]) == 1:
+                board.set_value(i,column,board.position_constraints[i][column].pop())
+                forward_checking_get_constraints(i,column,board,lcv)
+            print BoardArray[row][column]
 
     #delete numbers already in the same row
     for j in range(size):
-        if (BoardArray[row][j] == BoardArray[row][column] and BoardArray[row][j]) in board.position_constraints[row][j]:
-                board.position_constraints[row][j].remove(BoardArray[row][column])
-                print BoardArray[row][column]
+        if BoardArray[row][j] == 0 and BoardArray[row][column] in board.position_constraints[row][j]:
+            board.position_constraints[row][j].remove(BoardArray[row][column])
+            if len(board.position_constraints[i][column]) == 0:
+                print "asdjfaksldjfhlwthaslkgjhaslkfjhsdlkajshglaksjhfalskdjfhasldkfjh  "
+                return False   
+            if len(board.position_constraints[row][j]) == 1:
+                board.set_value(i,column,board.position_constraints[row][j].pop())
+                forward_checking_get_constraints(row,j,board,lcv)
+            print BoardArray[row][column]
 
     #delet numbers already in subsquare - reference is_complete
     for i in range(subsquare):
         for j in range(subsquare):
-            if (BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j] == BoardArray[row][column]) and BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j] in board.position_constraints[SquareRow*subsquare+i][SquareCol*subsquare+j]:
-                    board.position_constraints[SquareRow*subsquare+i][SquareCol*subsquare+j].remove(BoardArray[row][column])
-                    print BoardArray[row][column]
-    return board.position_constraints[row][column]
-
+            if BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j] == 0 and BoardArray[row][column] in board.position_constraints[SquareRow*subsquare+i][SquareCol*subsquare+j]:
+                board.position_constraints[SquareRow*subsquare+i][SquareCol*subsquare+j].remove(BoardArray[row][column])
+                if len(board.position_constraints[i][column]) == 0:
+                    return False   
+                if len(board.position_constraints[SquareRow*subsquare+i][SquareCol*subsquare+j]) == 1:
+                    board.set_value(SquareRow*subsquare+i,SquareCol*subsquare+j,board.position_constraints[SquareRow*subsquare+i][SquareCol*subsquare+j].pop())
+                    forward_checking_get_constraints(SquareRow*subsquare+i,SquareCol*subsquare+j,board,lcv)
+                print BoardArray[row][column]
+    return True
 
 def checkEmpty(board, MRV, degree):
     BoardArray = board.CurrentGameBoard
