@@ -146,9 +146,9 @@ def solve(initial_board, forward_checking = False, MRV = False, Degree = False,
     #gets next empty row, column postion
     empty_row, empty_column = checkEmpty(initial_board, MRV, Degree)
     #potential values based on current constraints
-    constraints = get_constraints(empty_row, empty_column, initial_board, LCV)
+    initial_board.position_constraints[empty_row][empty_column] = get_constraints(empty_row, empty_column, initial_board, LCV)
 
-    if len(constraints) == 0:
+    if len(initial_board.position_constraints[empty_row][empty_column]) == 0:
         print 'infeasible solution!' #print statement added
         #the problem for the 9x9 is that our backtracking reaches this point bc apparently there are no feasible lcoations left
         return False
@@ -169,6 +169,7 @@ def solve(initial_board, forward_checking = False, MRV = False, Degree = False,
             
             solution = solve(temp_board, forward_checking, MRV, Degree, LCV)
             if solution == False:
+                print " solution was found as false @#$#%$@#$$@%@#$@#%@#$@#%@#$@#$%@%"
                 continue
             else:
                 print 'moving back up the recursion stack' #print statement added
@@ -176,7 +177,7 @@ def solve(initial_board, forward_checking = False, MRV = False, Degree = False,
                 return solution
         
     else:
-        for v in constraints:
+        for v in initial_board.position_constraints[empty_row][empty_column]:
             temp_board = copy.deepcopy(initial_board)
             temp_board.set_value(empty_row, empty_column, v)
 
@@ -197,7 +198,6 @@ def solve(initial_board, forward_checking = False, MRV = False, Degree = False,
     print initial_board.print_board() #print statement added
     print 'last case where no solution was found and we finished backtracking!' #print statement added
     return False
-
 
 def forward_checking_get_constraints(row, column, board, lcv):
     BoardArray = board.CurrentGameBoard
@@ -376,8 +376,8 @@ def get_LCV(row, column, board):
                             constrained+=1
 
             output[x] = constrained
-            sorted_x = sorted(output.items(), key=operator.itemgetter(1), reverse = False)
-
+    sorted_x = sorted(output.items(), key=operator.itemgetter(1), reverse = False)
+    print sorted_x
     return sorted_x
 
 
