@@ -215,41 +215,52 @@ def forward_checking_get_constraints(row, column, board, lcv):
     subsquare = int(math.sqrt(size))
     SquareRow = row // subsquare
     SquareCol = column // subsquare
+    
+    update(row, column, board)
+    
+    flag = True
+    
+    while flag == True:
+        flag == False
+    
+        for i in range(size):
+            for j in range(size):
+                if len(board.position_constraints[i][j])  == 1 and BoardArray[i][j] == 0:
+                    board.set_value(i, j, board.position_constraints[i][j][0])
+                    global counter
+                    counter += 1
+                    flag = True
+                    update(i, j, board)
+                    print "update"
+                if is_complete(board) == True:
+                    print 'special done, the board should be all finished!' #print statement added
+                    return True
+                if len(board.position_constraints[i][j])  == 0 and BoardArray[i][j] == 0:
+                    return False
+    return True
+
+def update(row, column, board):
+
+    BoardArray = board.CurrentGameBoard
+    size = len(BoardArray)
+    subsquare = int(math.sqrt(size))
+    SquareRow = row // subsquare
+    SquareCol = column // subsquare
     #delete numbers already in the same column
     for i in range(size):
         if BoardArray[i][column] == 0 and BoardArray[row][column] in board.position_constraints[i][column]:
             board.position_constraints[i][column].remove(BoardArray[row][column])
-            if len(board.position_constraints[i][column]) == 0:
-                return False            
-            if len(board.position_constraints[i][column]) == 1:
-                board.set_value(i,column,board.position_constraints[i][column].pop())
-                forward_checking_get_constraints(i,column,board,lcv)
-            print BoardArray[row][column]
 
     #delete numbers already in the same row
     for j in range(size):
         if BoardArray[row][j] == 0 and BoardArray[row][column] in board.position_constraints[row][j]:
             board.position_constraints[row][j].remove(BoardArray[row][column])
-            if len(board.position_constraints[i][column]) == 0:
-                print "asdjfaksldjfhlwthaslkgjhaslkfjhsdlkajshglaksjhfalskdjfhasldkfjh  "
-                return False   
-            if len(board.position_constraints[row][j]) == 1:
-                board.set_value(i,column,board.position_constraints[row][j].pop())
-                forward_checking_get_constraints(row,j,board,lcv)
-            print BoardArray[row][column]
-
-    #delet numbers already in subsquare - reference is_complete
-    for i in range(subsquare):
-        for j in range(subsquare):
-            if BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j] == 0 and BoardArray[row][column] in board.position_constraints[SquareRow*subsquare+i][SquareCol*subsquare+j]:
-                board.position_constraints[SquareRow*subsquare+i][SquareCol*subsquare+j].remove(BoardArray[row][column])
-                if len(board.position_constraints[i][column]) == 0:
-                    return False   
-                if len(board.position_constraints[SquareRow*subsquare+i][SquareCol*subsquare+j]) == 1:
-                    board.set_value(SquareRow*subsquare+i,SquareCol*subsquare+j,board.position_constraints[SquareRow*subsquare+i][SquareCol*subsquare+j].pop())
-                    forward_checking_get_constraints(SquareRow*subsquare+i,SquareCol*subsquare+j,board,lcv)
-                print BoardArray[row][column]
-    return True
+        
+        #delet numbers already in subsquare - reference is_complete
+        for i in range(subsquare):
+            for j in range(subsquare):
+                if BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j] == 0 and BoardArray[row][column] in board.position_constraints[SquareRow*subsquare+i][SquareCol*subsquare+j]:
+                    board.position_constraints[SquareRow*subsquare+i][SquareCol*subsquare+j].remove(BoardArray[row][column])
 
 def checkEmpty(board, MRV, degree):
     BoardArray = board.CurrentGameBoard
