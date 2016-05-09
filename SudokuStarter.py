@@ -3,6 +3,8 @@ import struct, string, math
 from copy import *
 import copy
 import operator
+
+counter = 0
 class SudokuBoard:
     """This will be the sudoku board game object your player will manipulate."""
   
@@ -160,6 +162,8 @@ def solve(initial_board, forward_checking = False, MRV = False, Degree = False,
 
             temp_board = copy.deepcopy(initial_board)
             temp_board.set_value(empty_row, empty_column, v[0])
+            global counter
+            counter += 1
             
             if forward_checking == True:
                 forward_checking_get_constraints(empty_row,empty_column,temp_board,LCV)
@@ -180,6 +184,7 @@ def solve(initial_board, forward_checking = False, MRV = False, Degree = False,
         for v in initial_board.position_constraints[empty_row][empty_column]:
             temp_board = copy.deepcopy(initial_board)
             temp_board.set_value(empty_row, empty_column, v)
+            counter += 1
 
             if forward_checking == True:
                 forward_checking_get_constraints(empty_row,empty_column,temp_board,LCV)
@@ -193,10 +198,12 @@ def solve(initial_board, forward_checking = False, MRV = False, Degree = False,
             else:
                 print 'moving back up the recursion stack' #print statement added
                 print solution.print_board() #print statement added
+                print counter
                 return solution
     
     print initial_board.print_board() #print statement added
     print 'last case where no solution was found and we finished backtracking!' #print statement added
+    print counter
     return False
 
 def forward_checking_get_constraints(row, column, board, lcv):
