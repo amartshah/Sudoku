@@ -2,6 +2,7 @@
 import struct, string, math
 from copy import *
 import copy
+import operator
 class SudokuBoard:
     """This will be the sudoku board game object your player will manipulate."""
   
@@ -153,22 +154,26 @@ def solve(initial_board, forward_checking = False, MRV = False, Degree = False,
         return False
     if LCV == True:
 
-        value = get_LCV(empty_row,empty_column,initial_board)
-        if value == 0:
-            return False
-        temp_board = copy.deepcopy(initial_board)
-        temp_board.set_value(empty_row, empty_column, value)
-        
-        if forward_checking == True:
-            forward_checking_get_constraints(empty_row,empty_column,temp_board,LCV)
-            print 'it is forward forward checking'
-        
-        print "using lcv"
-        solution = solve(temp_board, forward_checking, MRV, Degree, LCV)
-        print temp_board.print_board()
-        if solution != False:
-            print solution.print_board()
-            return solution
+        values = get_LCV(empty_row,empty_column,initial_board)
+        print values
+        for v in values:
+
+            temp_board = copy.deepcopy(initial_board)
+            temp_board.set_value(empty_row, empty_column, v[0])
+            
+            if forward_checking == True:
+                forward_checking_get_constraints(empty_row,empty_column,temp_board,LCV)
+                print 'it is forward forward checking'
+            
+            print temp_board.print_board() #print statement added
+            
+            solution = solve(temp_board, forward_checking, MRV, Degree, LCV)
+            if solution == False:
+                continue
+            else:
+                print 'moving back up the recursion stack' #print statement added
+                print solution.print_board() #print statement added
+                return solution
         
     else:
         for v in constraints:
@@ -345,9 +350,9 @@ def get_LCV(row, column, board):
     subsquare = int(math.sqrt(size))
     SquareRow = row // subsquare
     SquareCol = column // subsquare
+    output = dict()
     
     least_constrained = float('inf')
-    best_value = 0
     
     #if that position is already set then empty constraint array
     if(BoardArray[row][column] == 0):
@@ -361,19 +366,19 @@ def get_LCV(row, column, board):
 
             for j in range(size):
                 if (BoardArray[row][j] == 0):
-                    if (x in board.position_constraints[row][j]):
+                    if (x in board.position_constraints[row][j] and j != column):
                         constrained+=1
 
             for i in range(subsquare):
                 for j in range(subsquare):
                     if (BoardArray[SquareRow*subsquare+i][SquareCol*subsquare+j] ==0):
-                        if (x in board.position_constraints[SquareRow*subsquare+i][SquareCol*subsquare+j] and SquareRow*subsquare+i != i and SquareCol*subsquare+j != j ):
+                        if (x in board.position_constraints[SquareRow*subsquare+i][SquareCol*subsquare+j] and (SquareRow*subsquare+i) != i and (SquareCol*subsquare+j) != j ):
                             constrained+=1
-            if least_constrained  > constrained:
-                least_constrained = constrained
-                best_value = x
-    print hello
-    return best_value
+
+            output[x] = constrained
+            sorted_x = sorted(output.items(), key=operator.itemgetter(1), reverse = False)
+
+    return sorted_x
 
 
 # #look at the doc string
